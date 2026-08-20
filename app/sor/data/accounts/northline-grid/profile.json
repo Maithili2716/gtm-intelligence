@@ -1,0 +1,14 @@
+{
+  "id": "northline-grid",
+  "account_id": "ACC-04471",
+  "name": "Northline Grid Authority",
+  "category": "renewal-focused",
+  "vertical": "Utilities / Critical Infrastructure",
+  "region": "North America",
+  "arr": 61400,
+  "health": "Healthy",
+  "sentiment": "Positive",
+  "tier": "Enterprise",
+  "cs_owner": "Priya Nandakumar",
+  "se_owner": "Marcus Oyelaran"
+}

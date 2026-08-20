@@ -1,0 +1,20 @@
+{
+  "account_id": "ACC-04471",
+  "monthly": [
+    {
+      "month": "2026-05",
+      "flight_hours": 58,
+      "missions": 38
+    },
+    {
+      "month": "2026-06",
+      "flight_hours": 61,
+      "missions": 40
+    },
+    {
+      "month": "2026-07",
+      "flight_hours": 64,
+      "missions": 42
+    }
+  ]
+}
