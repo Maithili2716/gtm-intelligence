@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>GTM Intelligence</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #080b10;
+    color: #e7edf4;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+.container {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 42px 0 70px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 34px;
+}
+
+.eyebrow {
+    color: #718096;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: -0.03em;
+}
+
+.subtitle {
+    margin-top: 8px;
+    color: #7f8b99;
+    font-size: 13px;
+}
+
+.live {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #9eabb8;
+    font-size: 11px;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #56d364;
+    box-shadow: 0 0 12px rgba(86, 211, 100, .5);
+}
+
+.account-header {
+    border: 1px solid #202832;
+    background: #0d1218;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.account-name {
+    font-size: 22px;
+    font-weight: 750;
+}
+
+.account-meta {
+    color: #73808d;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.health-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.card {
+    border: 1px solid #202832;
+    background: #0d1218;
+    border-radius: 14px;
+    padding: 22px;
+}
+
+.card-label {
+    color: #687584;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.health-value {
+    margin-top: 12px;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.health-trajectory {
+    margin-top: 7px;
+    color: #8996a4;
+    font-size: 12px;
+}
+
+.strong {
+    color: #65d391;
+}
+
+.uncertain {
+    color: #e5b96c;
+}
+
+.risk {
+    color: #ed7373;
+}
+
+.stable {
+    color: #82b7e8;
+}
+
+.priority {
+    margin-top: 14px;
+    display: inline-block;
+    padding: 7px 10px;
+    border-radius: 6px;
+    background: #2b1717;
+    color: #f27c7c;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.section {
+    margin-top: 16px;
+}
+
+.section-title {
+    color: #697684;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.primary {
+    font-size: 19px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+.reason {
+    margin-top: 12px;
+    color: #a3afbb;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.tension {
+    border-left: 3px solid #e0a64e;
+    padding-left: 15px;
+    color: #b8c2cc;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.trajectory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.trajectory {
+    border: 1px solid #202832;
+    border-radius: 10px;
+    padding: 15px;
+    background: #0a0f14;
+}
+
+.trajectory-label {
+    color: #687584;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+}
+
+.trajectory-value {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.reasoning {
+    display: grid;
+    gap: 10px;
+}
+
+.reasoning-item {
+    border: 1px solid #202832;
+    border-radius: 10px;
+    background: #0a0f14;
+    padding: 16px;
+}
+
+.reasoning-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.signal-title {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.signal-domain {
+    color: #768391;
+    font-size: 10px;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+}
+
+.signal-reason {
+    color: #9da9b5;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+.evidence {
+    margin-top: 10px;
+    color: #667381;
+    font-size: 10px;
+    font-family: monospace;
+}
+
+.direction-positive {
+    color: #65d391;
+}
+
+.direction-negative {
+    color: #ed7373;
+}
+
+.direction-neutral {
+    color: #9da9b5;
+}
+
+.error {
+    border: 1px solid #512727;
+    background: #1b1010;
+    color: #ef9999;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.loading {
+    color: #73808d;
+    padding: 50px 0;
+    text-align: center;
+}
+
+@media (max-width: 760px) {
+
+    .container {
+        width: min(100% - 28px, 1180px);
+        padding-top: 25px;
+    }
+
+    .health-grid,
+    .trajectory-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        display: block;
+    }
+
+    .live {
+        margin-top: 14px;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <div>
+            <div class="eyebrow">
+                GTM Intelligence
+            </div>
+
+            <h1>
+                Account Intelligence
+            </h1>
+
+            <div class="subtitle">
+                Evidence-backed account situation
+            </div>
+        </div>
+
+        <div class="live">
+            <span class="live-dot"></span>
+            LIVE
+        </div>
+
+    </div>
+
+
+    <div id="content">
+
+        <div class="loading">
+            Building live account intelligence...
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const ACCOUNT_ID = "northline-grid";
+
+
+function escapeHtml(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function healthClass(value) {
+
+    const normalized =
+        String(value || "")
+            .toLowerCase();
+
+    if (
+        normalized.includes("strong") ||
+        normalized.includes("positive")
+    ) {
+        return "strong";
+    }
+
+    if (
+        normalized.includes("uncertain") ||
+        normalized.includes("medium")
+    ) {
+        return "uncertain";
+    }
+
+    if (
+        normalized.includes("risk") ||
+        normalized.includes("negative")
+    ) {
+        return "risk";
+    }
+
+    return "stable";
+}
+
+
+function renderSignal(signal) {
+
+    const direction =
+        signal.direction || "neutral";
+
+    const directionClass =
+        "direction-" + direction;
+
+    const evidence =
+        Array.isArray(signal.evidence)
+            ? signal.evidence.join(", ")
+            : "";
+
+    return `
+        <div class="reasoning-item">
+
+            <div class="reasoning-top">
+
+                <div>
+
+                    <div class="signal-title">
+                        ${escapeHtml(signal.title)}
+                    </div>
+
+                    <div class="signal-domain">
+                        ${escapeHtml(signal.domain)}
+                    </div>
+
+                </div>
+
+                <div class="${directionClass}">
+                    ${escapeHtml(
+                        direction.toUpperCase()
+                    )}
+                </div>
+
+            </div>
+
+            <div class="signal-reason">
+                ${escapeHtml(signal.reason)}
+            </div>
+
+            <div class="evidence">
+                SOURCE → ${escapeHtml(evidence)}
+            </div>
+
+        </div>
+    `;
+}
+
+
+function renderAccount(data) {
+
+    const account =
+        data.account;
+
+    const investigation =
+        data.investigation;
+
+    const trajectory =
+        account.trajectory || {};
+
+    const signals =
+        investigation.signals || [];
+
+    const accountInfo =
+        investigation.account || {};
+
+    const content =
+        document.getElementById(
+            "content"
+        );
+
+    content.innerHTML = `
+
+        <div class="account-header">
+
+            <div class="account-name">
+                ${escapeHtml(
+                    accountInfo.name ||
+                    account.account_id
+                )}
+            </div>
+
+            <div class="account-meta">
+                ${escapeHtml(
+                    accountInfo.tier || ""
+                )}
+                ${accountInfo.vertical
+                    ? " · " +
+                      escapeHtml(
+                          accountInfo.vertical
+                      )
+                    : ""}
+                ${accountInfo.region
+                    ? " · " +
+                      escapeHtml(
+                          accountInfo.region
+                      )
+                    : ""}
+            </div>
+
+            <div class="priority">
+                PRIORITY ${escapeHtml(
+                    account.priority
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="health-grid">
+
+            <div class="card">
+
+                <div class="card-label">
+                    Operational Health
+                </div>
+
+                <div class="health-value ${healthClass(
+                    account.operational_health
+                )}">
+                    ${escapeHtml(
+                        account.operational_health
+                    )}
+                </div>
+
+                <div class="health-trajectory">
+                    Trajectory →
+                    ${escapeHtml(
+                        trajectory.operational
+                    )}
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-label">
+                    Commercial Health
+                </div>
+
+                <div class="health-value ${healthClass(
+                    account.commercial_health
+                )}">
+                    ${escapeHtml(
+                        account.commercial_health
+                    )}
+                </div>
+
+                <div class="health-trajectory">
+                    Trajectory →
+                    ${escapeHtml(
+                        trajectory.commercial
+                    )}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="section">
+
+                <div class="section-title">
+                    Primary Issue
+                </div>
+
+                <div class="primary">
+                    ${escapeHtml(
+                        account.primary_issue
+                    )}
+                </div>
+
+                <div class="reason">
+                    ${escapeHtml(
+                        account.why
+                    )}
+                </div>
+
+            </div>
+
+
+            <div class="section">
+
+                <div class="section-title">
+                    Key Tension
+                </div>
+
+                <div class="tension">
+                    ${escapeHtml(
+                        account.key_tension
+                    )}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card section">
+
+            <div class="section-title">
+                Trajectory
+            </div>
+
+            <div class="trajectory-grid">
+
+                <div class="trajectory">
+
+                    <div class="trajectory-label">
+                        Operational
+                    </div>
+
+                    <div class="trajectory-value strong">
+                        ${escapeHtml(
+                            trajectory.operational
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="trajectory">
+
+                    <div class="trajectory-label">
+                        Commercial
+                    </div>
+
+                    <div class="trajectory-value ${healthClass(
+                        trajectory.commercial
+                    )}">
+                        ${escapeHtml(
+                            trajectory.commercial
+                        )}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card section">
+
+            <div class="section-title">
+                Why the System Believes This
+            </div>
+
+            <div class="reasoning">
+
+                ${
+                    signals.length
+                    ? signals
+                        .map(renderSignal)
+                        .join("")
+                    : `
+                        <div class="reason">
+                            No signals returned.
+                        </div>
+                    `
+                }
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+async function loadAccount() {
+
+    const content =
+        document.getElementById(
+            "content"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/account/" +
+                encodeURIComponent(
+                    ACCOUNT_ID
+                )
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "API returned " +
+                response.status
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        renderAccount(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        content.innerHTML = `
+            <div class="error">
+
+                <strong>
+                    Unable to build account intelligence.
+                </strong>
+
+                <br><br>
+
+                ${escapeHtml(
+                    error.message
+                )}
+
+            </div>
+        `;
+    }
+}
+
+
+loadAccount();
+
+</script>
+
+</body>
+
+</html>

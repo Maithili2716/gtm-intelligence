@@ -19,54 +19,83 @@ MODEL = os.environ["NVIDIA_MODEL"]
 
 def extract_json(text: str) -> dict:
     """
-    Extract the first complete JSON object from an LLM response.
+    Extract a JSON object from an LLM response.
 
-    Nemotron may return reasoning text before the final JSON.
+    Nemotron may return reasoning text, markdown fences,
+    or whitespace around the JSON object.
     """
+
+    if not text:
+        raise RuntimeError("LLM response was empty.")
 
     text = text.strip()
 
-    # First: response is already pure JSON.
+    # ---------------------------------------------------------
+    # 1. Pure JSON
+    # ---------------------------------------------------------
+
     try:
-        return json.loads(text)
+        result = json.loads(text)
+
+        if not isinstance(result, dict):
+            raise RuntimeError(
+                "LLM returned valid JSON, but it was not a JSON object."
+            )
+
+        return result
+
     except json.JSONDecodeError:
         pass
 
-    # Remove markdown fences if present.
-    text = re.sub(
-        r"```json\s*",
+    # ---------------------------------------------------------
+    # 2. Remove markdown fences
+    # ---------------------------------------------------------
+
+    cleaned = re.sub(
+        r"```(?:json)?\s*",
         "",
         text,
         flags=re.IGNORECASE,
     )
 
-    text = re.sub(
-        r"```\s*$",
+    cleaned = re.sub(
+        r"\s*```",
         "",
-        text,
+        cleaned,
     ).strip()
 
     try:
-        return json.loads(text)
+        result = json.loads(cleaned)
+
+        if not isinstance(result, dict):
+            raise RuntimeError(
+                "LLM returned valid JSON, but it was not a JSON object."
+            )
+
+        return result
+
     except json.JSONDecodeError:
         pass
 
-    # Find the first JSON object.
-    start = text.find("{")
+    # ---------------------------------------------------------
+    # 3. Find a balanced JSON object
+    # ---------------------------------------------------------
+
+    start = cleaned.find("{")
 
     if start == -1:
         raise RuntimeError(
             "LLM response contained no JSON object:\n"
-            + text
+            + cleaned
         )
 
     depth = 0
     in_string = False
     escaped = False
 
-    for i in range(start, len(text)):
+    for i in range(start, len(cleaned)):
 
-        char = text[i]
+        char = cleaned[i]
 
         if escaped:
             escaped = False
@@ -91,30 +120,42 @@ def extract_json(text: str) -> dict:
 
             if depth == 0:
 
-                candidate = text[
+                candidate = cleaned[
                     start:i + 1
                 ]
 
                 try:
-                    return json.loads(candidate)
+                    result = json.loads(candidate)
+
+                    if not isinstance(result, dict):
+                        raise RuntimeError(
+                            "Extracted JSON was not an object."
+                        )
+
+                    return result
 
                 except json.JSONDecodeError as exc:
+
                     raise RuntimeError(
                         "Found JSON-looking content, "
                         "but it was invalid:\n"
                         + candidate
                     ) from exc
 
+    # ---------------------------------------------------------
+    # 4. Object never closed
+    # ---------------------------------------------------------
+
     raise RuntimeError(
         "LLM response contained an incomplete JSON object:\n"
-        + text
+        + cleaned
     )
 
 
-async def generate_json(
+async def _call_llm(
     system_prompt: str,
     user_prompt: str,
-) -> dict:
+) -> str:
 
     response = await client.chat.completions.create(
         model=MODEL,
@@ -148,4 +189,86 @@ async def generate_json(
             "LLM returned an empty response."
         )
 
-    return extract_json(content)
+    return content
+
+
+async def generate_json(
+    system_prompt: str,
+    user_prompt: str,
+) -> dict:
+
+    # ---------------------------------------------------------
+    # FIRST ATTEMPT
+    # ---------------------------------------------------------
+
+    content = await _call_llm(
+        system_prompt,
+        user_prompt,
+    )
+
+    try:
+        return extract_json(content)
+
+    except RuntimeError as first_error:
+
+        # -----------------------------------------------------
+        # SECOND ATTEMPT — JSON REPAIR
+        # -----------------------------------------------------
+
+        repair_system_prompt = """
+You are a JSON repair layer.
+
+The previous model response was supposed to contain exactly
+one valid JSON object.
+
+Return ONLY the corrected JSON object.
+
+Rules:
+
+1. Output valid JSON.
+2. Use double quotes for all JSON keys and strings.
+3. Do not add markdown fences.
+4. Do not add explanations.
+5. Do not add comments.
+6. Preserve the meaning and information of the original response.
+7. Do not invent new facts.
+8. Preserve evidence references exactly as provided.
+9. Ensure every object and array is correctly closed.
+10. Ensure every key has exactly one value.
+
+The output must begin with { and end with }.
+"""
+
+        repair_user_prompt = f"""
+The original task was:
+
+{user_prompt}
+
+The model produced this invalid response:
+
+{content}
+
+The parser error was:
+
+{first_error}
+
+Repair the response and return ONLY valid JSON.
+"""
+
+        repaired_content = await _call_llm(
+            repair_system_prompt,
+            repair_user_prompt,
+        )
+
+        try:
+            return extract_json(repaired_content)
+
+        except RuntimeError as second_error:
+
+            raise RuntimeError(
+                "LLM failed to produce valid JSON after "
+                "initial generation and one repair attempt.\n\n"
+                f"INITIAL ERROR:\n{first_error}\n\n"
+                f"REPAIR ERROR:\n{second_error}\n\n"
+                f"REPAIRED RESPONSE:\n{repaired_content}"
+            ) from second_error
